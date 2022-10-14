@@ -34,8 +34,9 @@ set(PCFILE "${CMAKE_CURRENT_BINARY_DIR}/Clipper2.pc")
 # 2d version of Clipper2
 add_library(Clipper2 ${CLIPPER2_INC} ${CLIPPER2_SRC})
 
-target_include_directories(Clipper2
-  PUBLIC Clipper2Lib/include
+target_include_directories(Clipper2 PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
+  $<INSTALL_INTERFACE:Clipper2Lib/include>
 )
 
 # Clipper2 but with USINGZ defined
@@ -43,8 +44,9 @@ add_library(Clipper2Z ${CLIPPER2_INC} ${CLIPPER2_SRC})
 
 target_compile_definitions(Clipper2Z PUBLIC USINGZ)
 
-target_include_directories(Clipper2Z
-  PUBLIC Clipper2Lib/include
+target_include_directories(Clipper2Z PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2Lib/include>
+  $<INSTALL_INTERFACE:Clipper2Lib/include>
 )
 
 if (WIN32)
@@ -189,6 +191,17 @@ endif()
 CONFIGURE_FILE(Clipper2.pc.cmakein "${PCFILE}" @ONLY)
 
 install(TARGETS Clipper2 Clipper2Z
+        EXPORT Clipper2Targets
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/clipper2
 )
 install(FILES ${PCFILE} DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+
+# Set installation path for CMake files.
+set(CLIPPER2_CMAKE_DESTINATION share/Clipper2)
+
+
+install(EXPORT Clipper2Targets
+        FILE Clipper2Targets.cmake
+        NAMESPACE Clipper2::
+        DESTINATION ${CLIPPER2_CMAKE_DESTINATION}
+)
